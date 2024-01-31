@@ -1,0 +1,29 @@
+First I have created the ECR Repo:
+
+aws ecr create-repository --repository-name project-test --region ap-south-1
+
+
+Now I have to login into the Repo with the help of Docker login:
+
+aws ecr get-login-password --region ap-south-1 | docker login --username AWS --password-stdin aws_account_id.dkr.ecr.region.amazonaws.com
+
+aws ecr get-login-password --region ap-south-1 | docker login --username AWS --password-stdin 489233147564.dkr.ecr.ap-south-1.amazonaws.com
+
+
+=================================================================================================
+
+aws ecr get-login-password --region ap-south-1 | docker login --username AWS --password-stdin 489233147564.dkr.ecr.ap-south-1.amazonaws.com
+
+============================================================================
+
+docker build -t project-test .
+
+===============================================================
+
+docker tag project-test:latest 489233147564.dkr.ecr.ap-south-1.amazonaws.com/project-test:latest
+
+=================================================================================
+
+docker push 489233147564.dkr.ecr.ap-south-1.amazonaws.com/project-test:latest
+
+=================================================================================

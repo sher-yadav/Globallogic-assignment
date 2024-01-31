@@ -1,0 +1,43 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Description: RabbitMQ Queue Creation Example
+
+Parameters:
+  AdminUsername:
+    Type: String
+    Description: Username for accessing the RabbitMQ broker
+    MinLength: 1
+    MaxLength: 100
+    AllowedPattern: "[a-zA-Z][a-zA-Z0-9]*"
+    ConstraintDescription: "Username must begin with a letter and contain only alphanumeric characters."
+
+  AdminPassword:
+    Type: String
+    Description: Password for accessing the RabbitMQ broker
+    MinLength: 8
+    MaxLength: 100
+    ConstraintDescription: "Password must be at least 8 characters long."
+
+Resources:
+  MyRabbitMQBroker:
+    Type: AWS::AmazonMQ::Broker
+    Properties:
+      BrokerName: MyRabbitMQBroker
+      EngineType: RABBITMQ
+      EngineVersion: 3.8.9
+      HostInstanceType: mq.t2.micro
+      Users:
+        - Username: !Ref AdminUsername
+          Password: !Ref AdminPassword
+
+  MyQueue:
+    Type: AWS::AmazonMQ::Configuration
+    Properties:
+      BrokerId: !Ref MyRabbitMQBroker
+      EngineType: RABBITMQ
+      EngineVersion: 3.8.9
+      Configuration: |
+        <configuration>
+          <queues>
+            <queue name="MyQueue" />
+          </queues>
+        </configuration>

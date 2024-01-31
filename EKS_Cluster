@@ -1,0 +1,17 @@
+eksctl create cluster \
+--name test-cluster \
+--version 1.17 \
+--region ap-south-1 \
+--nodegroup-name linux-nodes \
+--node-type t2.micro \
+--nodes 1
+
+===========================================================================
+
+kubectl get nodes (for finding the nodes in eks cluster)
+============================================================================
+kubectl get pod (for checking the pods)
+===================================================
+kubectl get ns (for checking the namespace)
+=====================================================
+eksctl delete cluster --name test-cluster
