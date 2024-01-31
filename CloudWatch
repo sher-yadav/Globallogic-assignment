@@ -12,3 +12,52 @@ Choose >= for Alarm when and enter 0.80 for Percent.
 Enter 1 for Consecutive period and select 5 minutes for Period.
 (Optional) For Sample metric data, choose Add to dashboard.
 Choose Create.
+
+
+AWSTemplateFormatVersion: '2010-09-09'
+Description: CloudWatch Alarms for EC2 Memory and CPU Utilization
+
+Resources:
+  CPUMetricAlarm:
+    Type: AWS::CloudWatch::Alarm
+    Properties:
+      AlarmDescription: "Alarm for high CPU utilization"
+      Namespace: AWS/EC2
+      MetricName: CPUUtilization
+      Dimensions:
+        - Name: InstanceId
+          Value: !Ref EC2InstanceId  # Reference to your EC2 instance ID
+      Statistic: Average
+      Period: 300  # 5 minutes
+      EvaluationPeriods: 1
+      Threshold: 90  # 90% utilization
+      ComparisonOperator: GreaterThanOrEqualToThreshold
+      AlarmActions:
+        - !Ref SNSAlarmTopic  # Reference to your SNS topic for notifications
+
+  MemoryMetricAlarm:
+    Type: AWS::CloudWatch::Alarm
+    Properties:
+      AlarmDescription: "Alarm for high memory utilization"
+      Namespace: System/Linux
+      MetricName: MemoryUtilization
+      Dimensions:
+        - Name: InstanceId
+          Value: !Ref EC2InstanceId  # Reference to your EC2 instance ID
+      Statistic: Average
+      Period: 300  # 5 minutes
+      EvaluationPeriods: 1
+      Threshold: 90  # 90% utilization
+      ComparisonOperator: GreaterThanOrEqualToThreshold
+      AlarmActions:
+        - !Ref SNSAlarmTopic  # Reference to your SNS topic for notifications
+
+
+  SNSAlarmTopic:
+  Type: AWS::SNS::Topic
+  Properties:
+    DisplayName: "EC2AlarmNotifications"
+    Subscription:
+      - Endpoint: "your-email@example.com"  # Replace with your email address
+        Protocol: "email"
+
