@@ -1,10 +1,12 @@
+Creating an EKS Cluster
+
 eksctl create cluster \
 --name test-cluster \
---version 1.17 \
+--version 1.29 \
 --region ap-south-1 \
 --nodegroup-name linux-nodes \
 --node-type t2.micro \
---nodes 1
+--nodes 2
 
 ===========================================================================
 
@@ -14,4 +16,49 @@ kubectl get pod (for checking the pods)
 ===================================================
 kubectl get ns (for checking the namespace)
 =====================================================
+
+
+# deployment.yaml
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: myapp
+spec:
+  replicas: 3
+  selector:
+    matchLabels:
+      app: myapp
+  template:
+    metadata:
+      labels:
+        app: myapp
+    spec:
+      containers:
+      - name: myapp
+        image: 489233147564.dkr.ecr.ap-south-1.amazonaws.com/project-test:latest
+        ports:
+        - containerPort: 80
+
+# service.yaml
+apiVersion: v1
+kind: Service
+metadata:
+  name: myapp
+spec:
+  selector:
+    app: myapp
+  ports:
+  - protocol: TCP
+    port: 80
+    targetPort: 80
+  type: ClusterIP
+
+===========================================================================================================
+
+kubectl apply -f deployment.yaml
+kubectl apply -f service.yaml
+
+================================================================================================
+
 eksctl delete cluster --name test-cluster
+
