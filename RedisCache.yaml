@@ -1,0 +1,13 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Description: Redis Cache with Node type using CloudFormation
+
+Resources:
+  RedisCacheCluster:
+    Type: AWS::ElastiCache::CacheCluster
+    Properties:
+      CacheNodeType: cache.t2.micro  # Specify the desired node type
+      Engine: redis                   # Specify the Redis engine
+      NumCacheNodes: 1                # Specify the number of cache nodes
+      CacheSubnetGroupName: default   # Specify the name of the subnet group to be used for the cache subnet
+      VpcSecurityGroupIds:            # Specify the security groups to be associated with the cluster
+        - sg-0737f0ea1c8e254d5        # Replace with your security group ID

@@ -1,0 +1,73 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Description: ECS Auto Scaling Based on Memory Utilization
+
+Parameters:
+  ClusterName:
+    Type: String
+    Description: Name of the ECS cluster
+  ServiceName:
+    Type: String
+    Description: Name of the ECS service
+  TaskDefinition:
+    Type: String
+    Description: ARN of the ECS task definition
+  DesiredCount:
+    Type: Number
+    Description: Desired number of tasks to run in the service
+    Default: 2
+  MinCapacity:
+    Type: Number
+    Description: Minimum number of tasks in the service
+    Default: 1
+  MaxCapacity:
+    Type: Number
+    Description: Maximum number of tasks in the service
+    Default: 5
+
+Resources:
+  MemoryUtilizationAlarm:
+    Type: AWS::CloudWatch::Alarm
+    Properties:
+      AlarmDescription: "Alarm for high memory utilization"
+      Namespace: AWS/ECS
+      MetricName: MemoryUtilization
+      Dimensions:
+        - Name: ClusterName
+          Value: !Ref ClusterName
+        - Name: ServiceName
+          Value: !Ref ServiceName
+      Statistic: Average
+      Period: 300  # 5 minutes
+      EvaluationPeriods: 1
+      Threshold: 80  # 80% utilization
+      ComparisonOperator: GreaterThanOrEqualToThreshold
+      AlarmActions:
+        - !Ref ScaleOutPolicy
+        - !Ref ScaleInPolicy
+
+  ScaleOutPolicy:
+    Type: AWS::AutoScaling::ScalingPolicy
+    Properties:
+      AdjustmentType: ChangeInCapacity
+      AutoScalingGroupName: !Ref ECSAutoScalingGroup
+      Cooldown: 300
+      ScalingAdjustment: 1
+
+  ScaleInPolicy:
+    Type: AWS::AutoScaling::ScalingPolicy
+    Properties:
+      AdjustmentType: ChangeInCapacity
+      AutoScalingGroupName: !Ref ECSAutoScalingGroup
+      Cooldown: 300
+      ScalingAdjustment: -1
+
+  ECSAutoScalingGroup:
+    Type: AWS::AutoScaling::AutoScalingGroup
+    Properties:
+      AutoScalingGroupName: !Sub "${ServiceName}ASG"
+      LaunchConfigurationName: !Ref EC2LaunchConfiguration
+      MinSize: !Ref MinCapacity
+      MaxSize: !Ref MaxCapacity
+      DesiredCapacity: !Ref DesiredCount
+      VPCZoneIdentifier: 
+        - subnet-1234567890abcdef0  # Replace with your subnet ID

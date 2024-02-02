@@ -1,0 +1,30 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Description: Amazon SQS Queue with Dead Letter Queue (DLQ)
+
+Parameters:
+  QueueName:
+    Type: String
+    Description: Name for the main SQS queue
+    Default: MyQueue
+
+  DLQName:
+    Type: String
+    Description: Name for the Dead Letter Queue
+    Default: MyDLQ
+
+Resources:
+  MyQueue:
+    Type: AWS::SQS::Queue
+    Properties:
+      QueueName: MyQueue
+      RedrivePolicy:
+        deadLetterTargetArn:
+          Fn::GetAtt:
+            - MyDLQ
+            - Arn
+        maxReceiveCount: 5  # Number of times a message is received from the queue before it is moved to the DLQ
+
+  MyDLQ:
+    Type: AWS::SQS::Queue
+    Properties:
+      QueueName: MyDLQ

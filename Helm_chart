@@ -1,0 +1,60 @@
+helm create helm_chart_nginx
+
+cd helm_chart_nginx
+
+Create Chart.yaml
+
+apiVersion: v2
+name: helm_chart_nginx
+description: A Helm chart for deploying NGINX
+version: 0.1.0
+
+Create values.yaml
+
+replicaCount: 1
+image:
+  repository: nginx
+  tag: latest
+  pullPolicy: IfNotPresent
+
+
+Now we need to create Templates in which we will create deployment.yaml
+
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ include "nginx-chart.fullname" . }}
+  labels:
+    app: nginx
+spec:
+  replicas: {{ .Values.replicaCount }}
+  selector:
+    matchLabels:
+      app: nginx
+  template:
+    metadata:
+      labels:
+        app: nginx
+    spec:
+      containers:
+        - name: nginx
+          image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"
+          ports:
+            - containerPort: 80
+
+Now we can do package our helm chart and install it.
+
+helm package .
+
+Successfully packaged chart and saved it to: /home/sher/Globallogic-assignment/nginx-helmchart/nginx-helmchart-0.1.0.tgz
+
+helm install nginx-helmchart ./nginx-helmchart-0.1.0.tgz
+
+
+Now we verify nginx deployment with the below commands.
+
+kubectl get pods
+
+
+
+
